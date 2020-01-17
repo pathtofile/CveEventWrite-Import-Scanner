@@ -40,7 +40,7 @@ namespace importscanner
                     }
                 }
 
-                // If not in delayed imports, try normal ones
+                // If not in delayed imports, try explicit ones
                 if (!found)
                 {
                     foreach (ImportLibrary import in Imports.Get(image))
@@ -68,21 +68,22 @@ namespace importscanner
         {
             try
             {
-                foreach (string filename in Directory.GetFiles(dir, "*.dll"))
+                foreach (string filename in Directory.GetFiles(dir))
                 {
-                    check_pe(filename);
-                }
-                foreach (string filename in Directory.GetFiles(dir, "*.exe"))
-                {
-                    check_pe(filename);
+                    if (filename.ToLower().EndsWith(".dll") || filename.ToLower().EndsWith(".exe"))
+                    {
+                        check_pe(filename);
+                    }
                 }
 
+                // Check any sub directories
                 foreach (string sub_dir in Directory.GetDirectories(dir))
                 {
                     check_dir(sub_dir);
                 }
             }
             // If we can't access the file, don't worry about it
+            catch (System.IO.IOException) { }
             catch (System.UnauthorizedAccessException) { }
         }
 
