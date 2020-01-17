@@ -1,7 +1,10 @@
 # Import Scanner
 
 This tool scans all PEs in a directory for the import `CveEventWrite`, a new function that
-Writes CVE details to ETW and the Event Log
+Writes CVE details to ETW and the Event Log.
+
+Decided to make this to help look for uses of the new-ish `CveEventWrite` function,
+in response to this twitter thread: https://twitter.com/taviso/status/1217824132504535040?s=21
 
 # Build
 Build `importscanner.sln`
