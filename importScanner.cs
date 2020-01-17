@@ -97,7 +97,7 @@ namespace importscanner
             [Value(1, MetaName = "function", HelpText = "Function in DLL to search for. Supports regex")]
             public string function { get; set; }
 
-            [Value(2, MetaName = "directory", HelpText = "Base directory to search", Default = "C:\\Windows\\System32")]
+            [Value(2, MetaName = "directory", HelpText = "Base directory to search, or a single file", Default = "C:\\Windows\\System32")]
             public string directory { get; set; }
         }
         static void Main(string[] args)
@@ -106,12 +106,22 @@ namespace importscanner
                 {
                     Console.WriteLine("Searching for:");
                     Console.WriteLine($"  Module:   '{opts.module}'");
-                    Console.WriteLine($"  Function: '{opts.module}'");
-                    Console.WriteLine($"  In Dir:   '{opts.directory}'");
-                    Console.WriteLine("---------------------------------");
+                    Console.WriteLine($"  Function: '{opts.function}'");
                     Regex module = new Regex(opts.module, RegexOptions.Compiled);
                     Regex function = new Regex(opts.function, RegexOptions.Compiled);
-                    CheckDirectory(module, function, opts.directory);
+                    // Check if a Single file or a directory:
+                    if(File.Exists(opts.directory) && !Directory.Exists(opts.directory))
+                    {
+                        Console.WriteLine($"  In file:  '{opts.directory}'");
+                        Console.WriteLine("---------------------------------");
+                        CheckPE(module, function, opts.directory);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"  In dir:   '{opts.directory}'");
+                        Console.WriteLine("---------------------------------");
+                        CheckDirectory(module, function, opts.directory);
+                    }
                 });
         }
     }

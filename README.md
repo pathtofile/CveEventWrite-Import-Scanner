@@ -1,6 +1,6 @@
 # Import Scanner
 
-This tool scans all PEs in a directory for the import `CveEventWrite`, a new function that
+This tool scans a single PE (or all PEs in a directory) for the import `CveEventWrite`, a new function that
 Writes CVE details to ETW and the Event Log.
 
 Searches both the `Import Address Table` and the `Delay-Load` Table, using the following library: https://github.com/Workshell/pe/
@@ -15,7 +15,7 @@ Build `importscanner.sln`
 Pass in three position arguments:
 1. The module to search for, e.g. `kernel32.dll`. Supports wildcarding
 2. The function to search for in the module, e.g. `CveEventWrite`. Supports wildcarding
-3. The base directory to search, e.g. `C:\Windows\System32`
+3. The base directory to search, e.g. `C:\Windows\System32`, or single file
 
 ## Examples
 Scan `C:\Windows\System32` for the function `CveEventWrite` in any `api-ms-win-security` DLL.
@@ -26,6 +26,11 @@ importscanner.exe "api-ms-win-security-base.*" "CveEventWrite"
 Scan for any function `CveEventWrite` imported in any PE on the whole `C:` drive:
 ```bash
 importscanner.exe ".*" "CveEventWrite" C:\
+```
+
+Scan for any function `CveEventWrite` imported in `C:\Windows\System32\crypt32.dll`
+```bash
+importscanner.exe ".*" "CveEventWrite" C:\Windows\System32\crypt32.dll
 ```
 
 
