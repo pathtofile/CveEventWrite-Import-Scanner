@@ -1,4 +1,4 @@
-# CveEventWrite Import Scanner
+# Import Scanner
 
 This tool scans all PEs in a directory for the import `CveEventWrite`, a new function that
 Writes CVE details to ETW and the Event Log
@@ -7,23 +7,28 @@ Writes CVE details to ETW and the Event Log
 Build `importscanner.sln`
 
 # Run - Standalone
-## Scan all PEs in `C:\Windows\System32`
+Pass in three position arguments:
+1. The module to search for, e.g. `kernel32.dll`. Supports wildcarding
+2. The function to search for in the module, e.g. `CveEventWrite`. Supports wildcarding
+3. The base directory to search, e.g. `C:\Windows\System32`
+
+## Examples
+Scan `C:\Windows\System32` for the function `CveEventWrite` in any `api-ms-win-security` DLL.
 ```bash
-importscanner.exe
+importscanner.exe "api-ms-win-security-base.*" "CveEventWrite"
 ```
 
-## Scan all PEs in arbitrary folder
+Scan for any function `CveEventWrite` imported in any PE on the whole `C:` drive:
 ```bash
-importscanner.exe <path/to/folder>
+importscanner.exe ".*" "CveEventWrite" C:\
 ```
 
-# Run - Docker
+
+## Running in Docker
 You can also run it inside a Docker containers, to help with rapid discovery of new uses of this function, e.g.:
-```bat
-docker run --rm -v <full/path/to/importscanner/bin/x64/Release>:C:\scan mcr.microsoft.com/windows/servercore:1903-KB4528760 C:\scan\importscanner.exe
-```
+```bash
+docker run --rm -v <full/path/to/importscanner/bin/x64/Release>:C:\scan mcr.microsoft.com/windows/servercore:1903-KB4528760 C:\scan\importscanner.exe ".*" "CveEventWrite" C:\
 
-or insider builds:
-```bat
-docker run --rm -v <full/path/to/importscanner/bin/x64/Release>:C:\scan mcr.microsoft.com/windows/servercore/insider:10.0.19035.1 C:\scan\importscanner.exe
+# Or Insider containers:
+docker run --rm -v <full/path/to/importscanner/bin/x64/Release>:C:\scan mcr.microsoft.com/windows/servercore/insider:10.0.19035.1 C:\scan\importscanner.exe ".*" "CveEventWrite" C:\
 ```
