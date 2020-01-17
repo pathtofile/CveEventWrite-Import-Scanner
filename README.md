@@ -3,13 +3,15 @@
 This tool scans all PEs in a directory for the import `CveEventWrite`, a new function that
 Writes CVE details to ETW and the Event Log.
 
+Searches both the `Import Address Table` and the `Delay-Load` Table, using the following library: https://github.com/Workshell/pe/
+
 Decided to make this to help look for uses of the new-ish `CveEventWrite` function,
 in response to this twitter thread: https://twitter.com/taviso/status/1217824132504535040?s=21
 
 # Build
 Build `importscanner.sln`
 
-# Run - Standalone
+# Running
 Pass in three position arguments:
 1. The module to search for, e.g. `kernel32.dll`. Supports wildcarding
 2. The function to search for in the module, e.g. `CveEventWrite`. Supports wildcarding
