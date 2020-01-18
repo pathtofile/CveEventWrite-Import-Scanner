@@ -33,19 +33,10 @@ namespace importscanner
             try
             {
                 PortableExecutableImage image = PortableExecutableImage.FromFile(filename);
-                foreach (DelayedImportLibrary import in DelayedImports.Get(image))
+                DelayedImports delayedImports = DelayedImports.Get(image);
+                if (delayedImports != null)
                 {
-                    found = CheckImport(module, function, import);
-                    if (found)
-                    {
-                        break;
-                    }
-                }
-
-                // If not in delayed imports, try explicit ones
-                if (!found)
-                {
-                    foreach (ImportLibrary import in Imports.Get(image))
+                    foreach (DelayedImportLibrary import in delayedImports)
                     {
                         found = CheckImport(module, function, import);
                         if (found)
@@ -54,9 +45,23 @@ namespace importscanner
                         }
                     }
                 }
+                // If not in delayed imports, try explicit ones
+                if (!found)
+                {
+                    Imports imports = Imports.Get(image);
+                    if (imports != null)
+                    {
+                        foreach (ImportLibrary import in imports)
+                        {
+                            found = CheckImport(module, function, import);
+                            if (found)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-            // NullReferenceException means it doesn't have any of those types of imports, ignore
-            catch (System.NullReferenceException) { }
             // If there's a bad DOS header or its not a valid PE, just ignore it
             catch (Workshell.PE.PortableExecutableImageException) { }
 
@@ -104,23 +109,30 @@ namespace importscanner
         {
             CommandLine.Parser.Default.ParseArguments<CommandLineOptions>(args).WithParsed(opts =>
                 {
-                    Console.WriteLine("Searching for:");
-                    Console.WriteLine($"  Module:   '{opts.module}'");
-                    Console.WriteLine($"  Function: '{opts.function}'");
-                    Regex module = new Regex(opts.module, RegexOptions.Compiled);
-                    Regex function = new Regex(opts.function, RegexOptions.Compiled);
-                    // Check if a Single file or a directory:
-                    if(File.Exists(opts.directory) && !Directory.Exists(opts.directory))
+                    if (opts.module == null || opts.function == null || opts.directory == null)
                     {
-                        Console.WriteLine($"  In file:  '{opts.directory}'");
-                        Console.WriteLine("---------------------------------");
-                        CheckPE(module, function, opts.directory);
+                        Console.WriteLine("Error: run 'importscanner.exe --help' for help");
                     }
                     else
                     {
-                        Console.WriteLine($"  In dir:   '{opts.directory}'");
-                        Console.WriteLine("---------------------------------");
-                        CheckDirectory(module, function, opts.directory);
+                        Console.WriteLine("Searching for:");
+                        Console.WriteLine($"  Module:   '{opts.module}'");
+                        Console.WriteLine($"  Function: '{opts.function}'");
+                        Regex module = new Regex(opts.module, RegexOptions.Compiled);
+                        Regex function = new Regex(opts.function, RegexOptions.Compiled);
+                        // Check if a Single file or a directory:
+                        if (File.Exists(opts.directory) && !Directory.Exists(opts.directory))
+                        {
+                            Console.WriteLine($"  In file:  '{opts.directory}'");
+                            Console.WriteLine("---------------------------------");
+                            CheckPE(module, function, opts.directory);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"  In dir:   '{opts.directory}'");
+                            Console.WriteLine("---------------------------------");
+                            CheckDirectory(module, function, opts.directory);
+                        }
                     }
                 });
         }
